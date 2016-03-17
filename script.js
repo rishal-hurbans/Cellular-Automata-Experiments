@@ -5,7 +5,6 @@ canvas.fillStyle = '#00A2EF';
 var cells = [];
 var cellScale = 10;
 var updateSpeed = 100;
-var totalAlive = 1;
 var totalLastAlive = 1;
 var isMouseDown = false;
 var maxGeneration = 100;
@@ -47,7 +46,6 @@ function init() {
 }
 
 function update() {
-    totalAlive = 0;
     var result = [];
     
     function _countNeighbours(x, y) {
@@ -72,29 +70,9 @@ function update() {
     cells.forEach(function(row, x) {
         result[x] = [];
         row.forEach(function(cell, y) {
-            var alive = 0;
-            var count = _countNeighbours(x, y);
-            
-            /*if (cell > 0) {
-                alive = count === 2 || count === 3 ? 1 : 0;
-            } else {
-                alive = count === 3 ? 1 : 0;
-            }*/
-
-            if(cell > 0){
-                if(count > 0 && count < 5) {
-                    alive = 1;
-                }
-            }else {
-                if(count === 3) {
-                    alive = 1;
-                }
-            }
-            
+            var neighbourCount = _countNeighbours(x, y);
+            var alive = applyConwaysGameOfLifeRules(cell, neighbourCount);
             result[x][y] = alive;
-            if(alive === 1) {
-                totalAlive++;
-            }
         });
     });
     
@@ -138,8 +116,28 @@ function draw() {
         logOutput += '\n';
     });
     logOutput += '\n\n';
-    console.log(logOutput);
+    //console.log(logOutput);
     currentGeneration++;
     if(currentGeneration < maxGeneration)
         setTimeout(function() {update();}, updateSpeed);
+}
+
+function applyConwaysGameOfLifeRules(cell, neighbourCount) {
+    if (cell > 0) {
+        return neighbourCount === 2 || neighbourCount === 3 ? 1 : 0;
+    } else {
+        return neighbourCount === 3 ? 1 : 0;
+    }
+}
+
+function applyMazeGenerationRules(cell, neighbourCount) {
+    if(cell > 0){
+        if(neighbourCount > 0 && neighbourCount < 5) {
+            return 1;
+        }
+    }else {
+        if(neighbourCount === 3) {
+            return 1;
+        }
+    }
 }
